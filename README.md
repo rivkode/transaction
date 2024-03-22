@@ -13,3 +13,5 @@ DB 설치시 참고 블로그
 - [MongoDB](https://blog.naver.com/sudoku1/223050233311)
 - [MySQL](https://hongong.hanbit.co.kr/mysql-%EB%8B%A4%EC%9A%B4%EB%A1%9C%EB%93%9C-%EB%B0%8F-%EC%84%A4%EC%B9%98%ED%95%98%EA%B8%B0mysql-community-8-0/)
 
+## UUID 생성
+
