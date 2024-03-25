@@ -1,5 +1,6 @@
-package com.example.transaction;
+package com.example.transaction.user;
 
+import com.example.transaction.IdGenerater;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

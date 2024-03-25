@@ -1,4 +1,4 @@
-package com.example.transaction;
+package com.example.transaction.user;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
