@@ -233,16 +233,16 @@ public class IdGenerater {
 
 
         int v = 48;
-        for (int i = 0; i < 9; i++) {
+        for (int i = 0; i < 10; i++) {
             firstAsciiMap.put(i, v);
             v++;
         }
-        // 52까지
+        // 57
 
 
         // i 10 -> 9, 36 -> 35
         v = 65;
-        for (int i = 9; i < 35; i++) {
+        for (int i = 10; i < 36; i++) {
             firstAsciiMap.put(i, v);
             v++;
         }
@@ -250,25 +250,25 @@ public class IdGenerater {
 
         // i 36 -> 35
         v = 97; // 13
-        for (int i = 35; i < 48; i++) {
+        for (int i = 36; i < 48; i++) {
             firstAsciiMap.put(i, v);
         }
         log.info("firstAsciiMap");
 
         return firstAsciiMap;
-        // 109까지
+        // 108까지
     }
 
     private HashMap<Integer, Integer> secondMapping() {
         HashMap<Integer, Integer> secondAsciiMap = new HashMap<>();
 
-        // v 109 -> 110 64 -> 65
-        int v = 110;
+
+        int v = 109;
         for (int i = 58; i < 65; i++) {
             secondAsciiMap.put(i, v);
             v++;
         }
-        // 116까지
+        // 115까지
 
         log.info("secondAsciiMap");
 
@@ -279,12 +279,12 @@ public class IdGenerater {
         HashMap<Integer, Integer> thirdAsciiMap = new HashMap<>();
 
         // 115 -> 117
-        int v = 117;
+        int v = 115;
         for (int i = 91; i < 97; i++) {
             thirdAsciiMap.put(i, v);
             v++;
         }
-        // 122까지
+        // 120까지
 
         log.info("thirdAsciiMap");
 
