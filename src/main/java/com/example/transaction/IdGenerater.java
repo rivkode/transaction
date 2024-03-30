@@ -15,8 +15,7 @@ public class IdGenerater {
     Integer z;
 
     public String generateId(String s, LocalDateTime createAt) {
-        hash(s, createAt);
-        return "";
+        return hash(s, createAt);
     }
 
 
@@ -45,7 +44,7 @@ public class IdGenerater {
      * @param name
      * @param createAt
      */
-    private synchronized void hash(String name, LocalDateTime createAt) {
+    private synchronized String hash(String name, LocalDateTime createAt) {
         // Single Thread 에서는 StringBuilder 사용
         // 만약 Multi Thread 환경이라면 StringBuffer 사용 고려
         StringBuffer hexSb = new StringBuffer();
@@ -225,6 +224,8 @@ public class IdGenerater {
 
         String fin = transferedToChar.toString();
         log.info("transferedToChar : " + fin);
+
+        return fin;
     }
 
     private HashMap<Integer, Integer> firstMapping() {
@@ -239,32 +240,35 @@ public class IdGenerater {
         // 52까지
 
 
+        // i 10 -> 9, 36 -> 35
         v = 65;
-        for (int i = 10; i < 36; i++) {
+        for (int i = 9; i < 35; i++) {
             firstAsciiMap.put(i, v);
             v++;
         }
         // 90까지
 
-        v = 97;
-        for (int i = 36; i < 48; i++) {
+        // i 36 -> 35
+        v = 97; // 13
+        for (int i = 35; i < 48; i++) {
             firstAsciiMap.put(i, v);
         }
         log.info("firstAsciiMap");
 
         return firstAsciiMap;
-        // 108까지
+        // 109까지
     }
 
     private HashMap<Integer, Integer> secondMapping() {
         HashMap<Integer, Integer> secondAsciiMap = new HashMap<>();
 
-        int v = 109;
-        for (int i = 58; i < 64; i++) {
+        // v 109 -> 110 64 -> 65
+        int v = 110;
+        for (int i = 58; i < 65; i++) {
             secondAsciiMap.put(i, v);
             v++;
         }
-        // 115까지
+        // 116까지
 
         log.info("secondAsciiMap");
 
@@ -274,12 +278,13 @@ public class IdGenerater {
     private HashMap<Integer, Integer> thirdMapping() {
         HashMap<Integer, Integer> thirdAsciiMap = new HashMap<>();
 
-        int v = 115;
+        // 115 -> 117
+        int v = 117;
         for (int i = 91; i < 97; i++) {
             thirdAsciiMap.put(i, v);
             v++;
         }
-        // 121까지
+        // 122까지
 
         log.info("thirdAsciiMap");
 
@@ -289,7 +294,7 @@ public class IdGenerater {
     private HashMap<Integer, Integer> fourthMapping() {
         HashMap<Integer, Integer> fourthAsciiMap = new HashMap<>();
 
-        int v = 121;
+        int v = 48;
         for (int i = 123; i < 128; i++) {
             fourthAsciiMap.put(i, v);
             v++;
