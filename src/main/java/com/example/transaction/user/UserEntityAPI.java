@@ -1,8 +1,11 @@
 package com.example.transaction.user;
 
+import com.example.transaction.util.EmailRequest;
 import com.example.transaction.util.MailService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -23,7 +26,17 @@ public class UserEntityAPI {
     }
 
     @PostMapping("/email")
-    public void createEmail() {
-        mailService.createEmail("river@g.seoultech.ac.kr");
+    public Integer createEmail() {
+        return mailService.createEmail("river@g.seoultech.ac.kr");
+    }
+
+    @PostMapping("/email-auth")
+    public String authorizationEmail(@RequestBody @Valid EmailRequest request) {
+        boolean isAuthorize = mailService.checkAuthNumber(request.email(), request.authNumber());
+        if (isAuthorize) {
+            return "OK";
+        } else {
+            throw new NullPointerException("Null Error");
+        }
     }
 }
