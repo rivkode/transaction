@@ -3,29 +3,40 @@ package com.example.transaction.util;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class MailService {
     private final JavaMailSender javaMailSender;
+    private final RedisUtil redisUtil;
 
-    public void createEmail(String email) {
+    public Integer createNumber() {
+        return 123456;
+    }
+
+
+    public Integer createEmail(String email) {
+        Integer authNumber = createNumber();
         String from = "jonghuncu@gmail.com";
         String to = email;
         String title = "인증 이메일입니다.";
         String content =
                 "나의 APP을 방문해주셔서 감사합니다." + 	//html 형식으로 작성 !
                         "<br><br>" +
-                        "인증 번호는 " + "1234" + "입니다." +
+                        "인증 번호는 " + authNumber + "입니다." +
                         "<br>" +
                         "인증번호를 입력해주세요"; //이메일 내용 삽입
-        mailSend(from, to, title, content);
+        mailSend(from, to, title, content, authNumber);
+
+        return authNumber;
     }
 
-    public void mailSend(String from, String to, String title, String content) {
+    public void mailSend(String from, String to, String title, String content, Integer authNumber) {
         MimeMessage message = javaMailSender.createMimeMessage();//JavaMailSender 객체를 사용하여 MimeMessage 객체를 생성
         try {
             MimeMessageHelper helper = new MimeMessageHelper(message,true,"utf-8");//이메일 메시지와 관련된 설정을 수행합니다.
@@ -38,6 +49,20 @@ public class MailService {
         } catch (MessagingException e) {//이메일 서버에 연결할 수 없거나, 잘못된 이메일 주소를 사용하거나, 인증 오류가 발생하는 등 오류
             // 이러한 경우 MessagingException이 발생
             e.printStackTrace();//e.printStackTrace()는 예외를 기본 오류 스트림에 출력하는 메서드
+        }
+        log.info("before setDataExpire");
+        redisUtil.setDataExpire(String.valueOf(authNumber), to, 60*5L);
+    }
+
+    public boolean checkAuthNumber(String email, String authNumber) {
+        if(redisUtil.getData(authNumber)==null){
+            return false;
+        }
+        else if(redisUtil.getData(authNumber).equals(email)){
+            return true;
+        }
+        else{
+            return false;
         }
     }
 }
