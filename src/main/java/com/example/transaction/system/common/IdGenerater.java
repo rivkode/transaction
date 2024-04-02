@@ -1,21 +1,20 @@
-package com.example.transaction;
+package com.example.transaction.system.common;
 
-import java.time.format.DateTimeFormatter;
+import java.time.Instant;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
 import java.util.HashMap;
 
 @Slf4j
 @Component
 public class IdGenerater {
-    Integer x;
-    Integer y;
-    Integer z;
 
-    public String generateId(String s, LocalDateTime createAt) {
-        return hash(s, createAt);
+
+    public String generateId(String s, Instant createAt, IdPrefix idPrefix) {
+        String generatedId = hash(s, createAt);
+        generatedId = idPrefix.getValue() + "-" + generatedId;
+        return generatedId;
     }
 
 
@@ -44,7 +43,7 @@ public class IdGenerater {
      * @param name
      * @param createAt
      */
-    private synchronized String hash(String name, LocalDateTime createAt) {
+    private synchronized String hash(String name, Instant createAt) {
         // Single Thread 에서는 StringBuilder 사용
         // 만약 Multi Thread 환경이라면 StringBuffer 사용 고려
         StringBuffer hexSb = new StringBuffer();
@@ -69,22 +68,21 @@ public class IdGenerater {
         asciiMap.putAll(fourthAsciiMap);
 
 
-
         String lastFourChar = name.substring(name.length() - 4);
-        // sample
-//        lastFourChar = "abcd";
+        String lastFourDigits = String.valueOf(createAt.getNano());
+        lastFourDigits = lastFourDigits.substring(lastFourDigits.length() - 4);
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HHmmssSSSS");
 
-        // LocalDateTime을 지정된 포맷으로 변환합니다.
-        String formattedDateTime = createAt.format(formatter);
+//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HHmmssSSSS");
+//
+//        // 나노초 시간을 지정된 포맷으로 변환합니다.
+//        String formattedDateTime = createAt.format(formatter);
 
         // 마지막 4자리 숫자를 추출합니다.
-        String lastFourDigits = formattedDateTime.substring(formattedDateTime.length() - 4);
+//        String lastFourDigits = formattedDateTime.substring(formattedDateTime.length() - 4);
 
         // sample
-//        lastFourDigits = "1234";
-        log.info(lastFourDigits);
+        log.info("lastFourDigits : " + lastFourDigits);
 
         String mixedString = mixString(lastFourChar, lastFourDigits);
         log.info(mixedString);

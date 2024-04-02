@@ -1,5 +1,6 @@
-package com.example.transaction;
+package com.example.transaction.system.common;
 
+import java.time.Instant;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -22,8 +23,10 @@ public class IdGen {
         initializeAsciiMap();
     }
 
-    public String generateId(String s, LocalDateTime createAt) {
-        return hash(s, createAt);
+    public String generateId(String s, Instant createAt, IdPrefix idPrefix) {
+        String generatedId = hash(s, createAt);
+        generatedId = idPrefix.getValue() + "-" + generatedId;
+        return generatedId;
     }
 
     /**
@@ -51,14 +54,18 @@ public class IdGen {
      * @param name
      * @param createAt
      */
-    private String hash(String name, LocalDateTime createAt) {
-        StringBuilder hexSb = new StringBuilder();
-        StringBuilder binarySb = new StringBuilder();
+    private String hash(String name, Instant createAt) {
+        StringBuffer hexSb = new StringBuffer();
+        StringBuffer binarySb = new StringBuffer();
+        log.info("createAt : " + createAt.toString());
 
         String lastFourChar = name.substring(name.length() - 4);
-        String lastFourDigits = String.format("%04d", createAt.getSecond());
+        String firstFourDigits = String.valueOf(createAt.getNano());
+        firstFourDigits = firstFourDigits.substring(0, 4);
+        log.info("firstFourDigits : " + firstFourDigits);
 
-        String mixedString = mixString(lastFourChar, lastFourDigits);
+        String mixedString = mixString(lastFourChar, firstFourDigits);
+        log.info("mixedString : " + mixedString);
 
         int j = 0;
         for (int i = 0; i < 8; i++) {
@@ -105,7 +112,6 @@ public class IdGen {
             boolean isASCII;
             // 토큰에서 2진수를 총 8bit만큼 추출 -> 16진수로 만들기 위해
             String binary = transferedBinary.substring(i, i + 8);
-//            String binary = transferedBinary.substring(i * 8, (i + 1) * 8);
             // 아스키 범위안에 속하는지 체크
             if (binary.charAt(0) == '0') {
                 isASCII = true;
@@ -129,7 +135,6 @@ public class IdGen {
 
             log.info("decimalNumber : " + decimalNumber);
 
-//            int decimalNumber = Integer.parseInt(binary, 2);
             if (!isValidAscii(decimalNumber)) {
                 decimalNumber = asciiMap.get(decimalNumber);
             }
@@ -177,37 +182,43 @@ public class IdGen {
     }
 
     private void initializeAsciiMap() {
-        int v = 48;
+        // ASCII_DIGIT_START - 48
+        int v = ASCII_DIGIT_START;
         for (int i = 0; i < 10; i++) {
             asciiMap.put(i, v);
             v++;
         }
 
-        v = 65;
+        // ASCII_UPPER_CASE_START - 65
+        v = ASCII_UPPER_CASE_START;
         for (int i = 10; i < 36; i++) {
             asciiMap.put(i, v);
             v++;
         }
 
-        v = 97;
+        // ASCII_LOWER_CASE_START - 97
+        v = ASCII_LOWER_CASE_START;
         for (int i = 36; i < 48; i++) {
             asciiMap.put(i, v);
             v++;
         }
 
+        // 중간값 계산
         v = 109;
         for (int i = 58; i < 65; i++) {
             asciiMap.put(i, v);
             v++;
         }
 
+        // 중간값 계산
         v = 115;
         for (int i = 91; i < 97; i++) {
             asciiMap.put(i, v);
             v++;
         }
 
-        v = 48;
+        // ASCII_DIGIT_START - 48
+        v = ASCII_DIGIT_START;
         for (int i = 123; i < 128; i++) {
             asciiMap.put(i, v);
             v++;
