@@ -1,6 +1,7 @@
 package com.example.transaction.user;
 
-import com.example.transaction.user.dto.request.CreateUserRequest;
+import com.example.transaction.util.EmailRequest;
+import com.example.transaction.util.MailService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,9 +17,26 @@ import java.time.LocalDateTime;
 @RequestMapping("/api/users")
 public class UserEntityAPI {
     private final UserEntityService userEntityService;
+    private final MailService mailService;
 
     @PostMapping("/hello")
-    public String createTransaction(@RequestBody @Valid CreateUserRequest request) {
-        return userEntityService.create(request);
+    public String hello() {
+        LocalDateTime time = LocalDateTime.now();
+        return "hello";
+    }
+
+    @PostMapping("/email")
+    public Integer createEmail() {
+        return mailService.createEmail("river@g.seoultech.ac.kr");
+    }
+
+    @PostMapping("/email-auth")
+    public String authorizationEmail(@RequestBody @Valid EmailRequest request) {
+        boolean isAuthorize = mailService.checkAuthNumber(request.email(), request.authNumber());
+        if (isAuthorize) {
+            return "OK";
+        } else {
+            throw new NullPointerException("Null Error");
+        }
     }
 }
