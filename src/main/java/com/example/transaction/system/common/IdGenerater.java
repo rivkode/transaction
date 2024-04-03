@@ -1,22 +1,20 @@
-package com.example.transaction;
+package com.example.transaction.system.common;
 
-import java.time.format.DateTimeFormatter;
+import java.time.Instant;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
 import java.util.HashMap;
 
 @Slf4j
 @Component
 public class IdGenerater {
-    Integer x;
-    Integer y;
-    Integer z;
 
-    public String generateId(String s, LocalDateTime createAt) {
-        hash(s, createAt);
-        return "";
+
+    public String generateId(String s, Instant createAt, IdPrefix idPrefix) {
+        String generatedId = hash(s, createAt);
+        generatedId = idPrefix.getValue() + "-" + generatedId;
+        return generatedId;
     }
 
 
@@ -45,7 +43,7 @@ public class IdGenerater {
      * @param name
      * @param createAt
      */
-    private synchronized void hash(String name, LocalDateTime createAt) {
+    private synchronized String hash(String name, Instant createAt) {
         // Single Thread 에서는 StringBuilder 사용
         // 만약 Multi Thread 환경이라면 StringBuffer 사용 고려
         StringBuffer hexSb = new StringBuffer();
@@ -70,22 +68,21 @@ public class IdGenerater {
         asciiMap.putAll(fourthAsciiMap);
 
 
-
         String lastFourChar = name.substring(name.length() - 4);
-        // sample
-//        lastFourChar = "abcd";
+        String lastFourDigits = String.valueOf(createAt.getNano());
+        lastFourDigits = lastFourDigits.substring(lastFourDigits.length() - 4);
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HHmmssSSSS");
 
-        // LocalDateTime을 지정된 포맷으로 변환합니다.
-        String formattedDateTime = createAt.format(formatter);
+//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HHmmssSSSS");
+//
+//        // 나노초 시간을 지정된 포맷으로 변환합니다.
+//        String formattedDateTime = createAt.format(formatter);
 
         // 마지막 4자리 숫자를 추출합니다.
-        String lastFourDigits = formattedDateTime.substring(formattedDateTime.length() - 4);
+//        String lastFourDigits = formattedDateTime.substring(formattedDateTime.length() - 4);
 
         // sample
-//        lastFourDigits = "1234";
-        log.info(lastFourDigits);
+        log.info("lastFourDigits : " + lastFourDigits);
 
         String mixedString = mixString(lastFourChar, lastFourDigits);
         log.info(mixedString);
@@ -225,6 +222,8 @@ public class IdGenerater {
 
         String fin = transferedToChar.toString();
         log.info("transferedToChar : " + fin);
+
+        return fin;
     }
 
     private HashMap<Integer, Integer> firstMapping() {
@@ -232,13 +231,14 @@ public class IdGenerater {
 
 
         int v = 48;
-        for (int i = 0; i < 9; i++) {
+        for (int i = 0; i < 10; i++) {
             firstAsciiMap.put(i, v);
             v++;
         }
-        // 52까지
+        // 57
 
 
+        // i 10 -> 9, 36 -> 35
         v = 65;
         for (int i = 10; i < 36; i++) {
             firstAsciiMap.put(i, v);
@@ -246,7 +246,8 @@ public class IdGenerater {
         }
         // 90까지
 
-        v = 97;
+        // i 36 -> 35
+        v = 97; // 13
         for (int i = 36; i < 48; i++) {
             firstAsciiMap.put(i, v);
         }
@@ -259,8 +260,9 @@ public class IdGenerater {
     private HashMap<Integer, Integer> secondMapping() {
         HashMap<Integer, Integer> secondAsciiMap = new HashMap<>();
 
+
         int v = 109;
-        for (int i = 58; i < 64; i++) {
+        for (int i = 58; i < 65; i++) {
             secondAsciiMap.put(i, v);
             v++;
         }
@@ -274,12 +276,13 @@ public class IdGenerater {
     private HashMap<Integer, Integer> thirdMapping() {
         HashMap<Integer, Integer> thirdAsciiMap = new HashMap<>();
 
+        // 115 -> 117
         int v = 115;
         for (int i = 91; i < 97; i++) {
             thirdAsciiMap.put(i, v);
             v++;
         }
-        // 121까지
+        // 120까지
 
         log.info("thirdAsciiMap");
 
@@ -289,7 +292,7 @@ public class IdGenerater {
     private HashMap<Integer, Integer> fourthMapping() {
         HashMap<Integer, Integer> fourthAsciiMap = new HashMap<>();
 
-        int v = 121;
+        int v = 48;
         for (int i = 123; i < 128; i++) {
             fourthAsciiMap.put(i, v);
             v++;

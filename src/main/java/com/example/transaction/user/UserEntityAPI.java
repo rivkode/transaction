@@ -22,7 +22,7 @@ public class UserEntityAPI {
     @PostMapping("/hello")
     public String hello() {
         LocalDateTime time = LocalDateTime.now();
-        return userEntityService.create("jonghun", time);
+        return "hello";
     }
 
     @PostMapping("/email")
