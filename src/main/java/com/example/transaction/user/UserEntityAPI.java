@@ -1,5 +1,6 @@
 package com.example.transaction.user;
 
+import com.example.transaction.user.dto.request.CreateUserRequest;
 import com.example.transaction.util.EmailRequest;
 import com.example.transaction.util.MailService;
 import jakarta.validation.Valid;
@@ -20,8 +21,8 @@ public class UserEntityAPI {
     private final MailService mailService;
 
     @PostMapping("/hello")
-    public String hello() {
-        LocalDateTime time = LocalDateTime.now();
+    public String hello(@RequestBody CreateUserRequest request) {
+        userEntityService.create(request);
         return "hello";
     }
 
