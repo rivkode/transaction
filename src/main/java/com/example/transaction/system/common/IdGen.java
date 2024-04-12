@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.random.RandomGenerator;
 
 @Slf4j
 @Component
@@ -16,17 +17,63 @@ public class IdGen {
     private static final int ASCII_UPPER_CASE_END = 90;
     private static final int ASCII_DIGIT_START = 48;
     private static final int ASCII_DIGIT_END = 57;
+    private static final int TIME_NUMBER_START = 0;
+    private static final int TIME_UPPER_CASE_START = 10;
+    private static final int TIME_LOWER_CASE_START = 36;
+
 
     private final HashMap<Integer, Integer> asciiMap = new HashMap<>();
+    private final HashMap<Integer, Character> timeMap = new HashMap<>();
 
     public IdGen() {
         initializeAsciiMap();
+        initializeTimeMap();
     }
 
     public String generateId(String s, Instant createAt, IdPrefix idPrefix) {
-        String generatedId = hash(s, createAt);
-        generatedId = idPrefix.getValue() + "-" + generatedId;
+        RandomGenerator generator = RandomGenerator.of("L128X256MixRandom");
+        System.out.printf("random number = %d", generator.nextInt(10000));
+        Integer pseudo = generator.nextInt(10000);
+
+        String generatedId = hash(s, pseudo);
+        String timeBit = calculateInstant(createAt);
+        generatedId = idPrefix.getValue() + "-" + timeBit + "-" + generatedId;
+        log.info("time : "+ timeMap.get(0));
+        log.info("time : "+ timeMap.get(20));
+        log.info("time : "+ timeMap.get(7));
         return generatedId;
+    }
+
+    /**
+     * Instant에서 년, 월, 일, 시, 분을 추출
+     * 년도는 숫자 그대로 나타내며
+     * 월, 일, 시, 분에 대해 timeMap에서 값을 가져와 String 생성
+     * timeMap은 0-9 / A-Z / a-z 순으로 이루어진 hashMap
+     * 이렇게 함으로써 시간순으로 정렬이 가능하도록 됨
+     * @param createAt
+     * @return
+     */
+    private String calculateInstant(Instant createAt) {
+
+        int year = createAt.atZone(java.time.ZoneOffset.UTC).getYear();
+        int yearFirstDigit = year / 100;
+        int yearSecondDigit = year % 100;
+        int month = createAt.atZone(java.time.ZoneOffset.UTC).getMonthValue();
+        int day = createAt.atZone(java.time.ZoneOffset.UTC).getDayOfMonth();
+        int hour = createAt.atZone(java.time.ZoneOffset.UTC).getHour();
+        int minute = createAt.atZone(java.time.ZoneOffset.UTC).getMinute();
+
+        String total = String.valueOf(yearSecondDigit);
+
+        Character CMonth = timeMap.getOrDefault(month, '0');
+        Character CDay = timeMap.getOrDefault(day, '0');
+        Character CHour = timeMap.getOrDefault(hour, '0');
+        Character CMinute = timeMap.getOrDefault(minute, '0');
+
+        total = total + CMonth + CDay + CHour + CMinute;
+        log.info(total);
+
+        return total;
     }
 
     /**
@@ -52,19 +99,20 @@ public class IdGen {
      *
      *
      * @param name
-     * @param createAt
+     * @param pseudo
      */
-    private String hash(String name, Instant createAt) {
+    private String hash(String name, Integer pseudo) {
         StringBuffer hexSb = new StringBuffer();
         StringBuffer binarySb = new StringBuffer();
-        log.info("createAt : " + createAt.toString());
+//        log.info("createAt : " + createAt.toString());
 
         String lastFourChar = name.substring(name.length() - 4);
-        String firstFourDigits = String.valueOf(createAt.getNano());
-        firstFourDigits = firstFourDigits.substring(0, 4);
-        log.info("firstFourDigits : " + firstFourDigits);
-
-        String mixedString = mixString(lastFourChar, firstFourDigits);
+        String SPseudo = String.format("%4s", pseudo).replace(' ', '0');
+//        String firstFourDigits = String.valueOf(createAt.getNano());
+//        firstFourDigits = firstFourDigits.substring(0, 4);
+//        log.info("firstFourDigits : " + firstFourDigits);
+//
+        String mixedString = mixString(lastFourChar, SPseudo);
         log.info("mixedString : " + mixedString);
 
         int j = 0;
@@ -180,6 +228,34 @@ public class IdGen {
         }
         return result.toString();
     }
+
+    private void initializeTimeMap() {
+        char v = '0';
+        for (int i = TIME_NUMBER_START; i < 10; i++) {
+            timeMap.put(i, v);
+            log.info("v : " + v);
+            v++;
+
+        }
+
+        v = 'A';
+
+        for (int i = TIME_UPPER_CASE_START; i < 36; i++) {
+            timeMap.put(i, v);
+            log.info("v : " + v);
+            v++;
+
+        }
+
+        v = 'a';
+
+        for (int i = TIME_LOWER_CASE_START; i < 62; i++) {
+            timeMap.put(i, v);
+            log.info("v : " + v);
+            v++;
+        }
+    }
+
 
     private void initializeAsciiMap() {
         // ASCII_DIGIT_START - 48
